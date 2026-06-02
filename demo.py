@@ -10,28 +10,13 @@ import torchaudio
 import wave
 import struct
 
+from text_gen import text_to_audio
+
 
 def load_audio(audio_path: str) -> torch.tensor:
     """Load audio file and convert to torch tensor."""
     loaded_audio, _ = li.load(audio_path, sr=None)
     return torch.from_numpy(loaded_audio).float().reshape(1, 1, -1)
-
-
-def text_to_audio(text: str) -> str:
-    """Proxy audio generator: create a short silent WAV file and return its path.
-
-    Placeholder for future music generation.
-    """
-    # if not text:
-    #     return None
-    fd, path = tempfile.mkstemp(suffix=".wav")
-    os.close(fd)
-
-    # Placeholder for generation - load example audio
-    audio, sample_rate = li.load("audio_examples/1.wav", sr=None)
-    sf.write(path, audio, sample_rate)
-
-    return path
 
 
 def array_to_path(array: np.array, sample_rate: int = 44100) -> str:
