@@ -14,10 +14,7 @@ from stable_audio_tools.inference.generation import generate_diffusion_cond
 
 
 def text_to_audio(text: str, length_secs: int = 3) -> str:
-    """Proxy audio generator: create a short silent WAV file and return its path.
-
-    Placeholder for future music generation.
-    """
+    """Audio generator: create a WAV file from text -> audio model and return its path."""
 
     fd, path = tempfile.mkstemp(suffix=".wav")
     os.close(fd)
