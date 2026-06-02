@@ -9,6 +9,7 @@ def load_audio(audio_path: str) -> torch.tensor:
     loaded_audio, _ = li.load(audio_path, sr=None)
     return torch.from_numpy(loaded_audio).float().reshape(1, 1, -1)
 
+# 
 
 MODEL_STRING = "RAVE Models/voice_vocalset_b2048_r48000_z16.ts"
 AUDIO_PATH = "audio_examples/2.wav"
