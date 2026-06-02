@@ -1,2 +1,7 @@
 .venv/
 *.ts
+.mypy_cache/
+*__pycache__/
+*.wav
+!audio_examples/
+.DS_Store
