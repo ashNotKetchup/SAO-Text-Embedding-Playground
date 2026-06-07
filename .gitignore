@@ -5,3 +5,4 @@
 *.wav
 !audio_examples/
 .DS_Store
+!RAVE Models/percussion.ts
