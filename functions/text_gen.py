@@ -13,7 +13,7 @@ from stable_audio_tools import get_pretrained_model
 from stable_audio_tools.inference.generation import generate_diffusion_cond
 
 
-def text_to_audio(text: str, length_secs: int = 3) -> str:
+def text_to_audio(text: str, length_secs: int = 15) -> str:
     """Audio generator: create a WAV file from text -> audio model and return its path."""
 
     fd, path = tempfile.mkstemp(suffix=".wav")
