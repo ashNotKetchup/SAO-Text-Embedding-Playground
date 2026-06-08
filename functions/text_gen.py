@@ -42,7 +42,7 @@ def text_to_audio(
     # Set up text and timing conditioning
     conditioning = [
         {
-            "prompt": text,
+            "prompt": f"A sample that sounds like: {text}",
             "negative_prompt": negative_prompt,
             "seconds_start": 0,
             "seconds_total": length_secs,
@@ -70,7 +70,6 @@ def text_to_audio(
         output.to(torch.float32)
         .div(torch.max(torch.abs(output)))
         .clamp(-1, 1)
-        .mul(32767)
         .to(torch.int16)
         .cpu()[:, : (length_secs * sample_rate)]  # Trim to length_secs
     )
