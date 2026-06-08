@@ -18,16 +18,19 @@ def generate_audio(
     print(
         f"Received inputs - Text: {text}, Model: {model}, Interpolation Mode: {interpolation_mode}, Interpolation Text: {interpolation_text}, Interpolation Audio: {interpolation_audio}, Interpolation Amount: {interpolation_amount}"
     )
+    text_gen_path = text_to_audio(text)
+
     if interpolation_mode == "Text" and interpolation_text:
-        print("Performing text-based interpolation (placeholder)")
         interpolation_audio = text_to_audio(interpolation_text)
 
     if interpolation_audio:
-        return interpolate_audio(
-            text_to_audio(text), interpolation_audio, model, interpolation_amount
+        interp_path = interpolate_audio(
+            text_gen_path, interpolation_audio, model, interpolation_amount
         )
+    else:
+        interp_path = interpolate_audio(text_gen_path, model_string=model)
 
-    return interpolate_audio(text_to_audio(text), model_string=model)
+    return text_gen_path, interp_path
 
 
 def update_interpolation_inputs(mode: str):
@@ -72,7 +75,8 @@ def build_interface():
                 model = gr.Dropdown(
                     choices=model_choices, value=model_choices[0], label="Model"
                 )
-                audio = gr.Audio(label="Audio output")
+                text_gen_out = gr.Audio(label="Text generation output")
+                interp_out = gr.Audio(label="Interpolation output")
                 btn = gr.Button("Generate")
             with gr.Column():
                 interp_mode = gr.Dropdown(
@@ -107,7 +111,7 @@ def build_interface():
         btn.click(
             fn=generate_audio,
             inputs=[txt, model, interp_mode, interp_txt, interp_audio, interp_amount],
-            outputs=audio,
+            outputs=[text_gen_out, interp_out],
         )
 
     return demo

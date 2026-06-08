@@ -13,7 +13,14 @@ from stable_audio_tools import get_pretrained_model
 from stable_audio_tools.inference.generation import generate_diffusion_cond
 
 
-def text_to_audio(text: str, length_secs: int = 15) -> str:
+def text_to_audio(
+    text: str,
+    length_secs: int = 15,
+    negative_prompt: str = "low quality and distorted",
+    steps: int = 150,
+    cfg_scale: float = 10.0,
+    sigma_min: float = 0.2,
+) -> str:
     """Audio generator: create a WAV file from text -> audio model and return its path."""
 
     fd, path = tempfile.mkstemp(suffix=".wav")
@@ -32,6 +39,7 @@ def text_to_audio(text: str, length_secs: int = 15) -> str:
     conditioning = [
         {
             "prompt": text,
+            "negative_prompt": negative_prompt,
             "seconds_start": 0,
             "seconds_total": length_secs,
         }
@@ -40,11 +48,11 @@ def text_to_audio(text: str, length_secs: int = 15) -> str:
     # Generate stereo audio
     output = generate_diffusion_cond(
         model,
-        steps=100,
-        cfg_scale=7,
+        steps=steps,
+        cfg_scale=cfg_scale,
         conditioning=conditioning,
         sample_size=sample_size,
-        sigma_min=0.3,
+        sigma_min=sigma_min,
         sigma_max=500,
         sampler_type="dpmpp-3m-sde",
         device=device,
