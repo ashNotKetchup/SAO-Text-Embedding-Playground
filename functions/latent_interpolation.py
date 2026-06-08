@@ -94,5 +94,5 @@ def interpolate_audio(
     path = array_to_path(output, output_path=output_path)
 
     # testing
-    return audio_path0
-    # return path
+    # return audio_path0
+    return path
