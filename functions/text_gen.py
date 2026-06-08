@@ -28,6 +28,10 @@ def text_to_audio(
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # Clear CUDA cache before loading the model to free up GPU memory
+    if device == "cuda":
+        torch.cuda.empty_cache()
+
     # Download model
     model, model_config = get_pretrained_model("stabilityai/stable-audio-open-1.0")
     sample_rate = model_config["sample_rate"]
