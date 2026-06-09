@@ -65,15 +65,28 @@ def text_to_audio(
     # Rearrange audio batch to a single sequence
     output = rearrange(output, "b d n -> d (b n)")
 
-    # Peak normalize, clip, convert to int16, and save to file
+    # # Peak normalize, clip, convert to int16, and save to file
+    # output = (
+    #     output.to(torch.float32)
+    #     .div(torch.max(torch.abs(output)))
+    #     .clamp(-1, 1)
+    #     .to(torch.int16)
+    #     .cpu()[:, : (length_secs * sample_rate)]  # Trim to length_secs
+    # )
+
     output = (
-        output.to(torch.float32)
-        .div(torch.max(torch.abs(output)))
-        .clamp(-1, 1)
-        .to(torch.int16)
-        .cpu()[:, : (length_secs * sample_rate)]  # Trim to length_secs
+        output.to(torch.float32).clamp(-1, 1).cpu()[:, : (length_secs * sample_rate)]
+    )  # Trim to length_secs
+
+    torchaudio.save(
+        "output.wav",
+        output,
+        sample_rate=sample_rate,
+        encoding="PCM_F",
+        bits_per_sample=32,
     )
 
-    torchaudio.save(path, output, sample_rate)
+    
+    # torchaudio.save(path, output, sample_rate)
 
     return path
