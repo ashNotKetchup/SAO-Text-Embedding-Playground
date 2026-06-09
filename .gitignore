@@ -6,3 +6,6 @@
 !audio_examples/
 .DS_Store
 !RAVE Models/percussion.ts
+*functions/__pycache__/
+*functions/*.pyc
+*__pycache__/

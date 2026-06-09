@@ -9,6 +9,7 @@ from functions.latent_interpolation import interpolate_audio
 def generate_audio(
     text: str,
     model: str,
+    length_secs: int = 15,
     interpolation_mode: str = None,
     interpolation_text: str = None,
     interpolation_audio=None,
@@ -16,12 +17,12 @@ def generate_audio(
 ):
     """Generates audio dependent on input"""
     print(
-        f"Received inputs - Text: {text}, Model: {model}, Interpolation Mode: {interpolation_mode}, Interpolation Text: {interpolation_text}, Interpolation Audio: {interpolation_audio}, Interpolation Amount: {interpolation_amount}"
+        f"Received inputs - Text: {text}, Model: {model}, Length: {length_secs}s, Interpolation Mode: {interpolation_mode}, Interpolation Text: {interpolation_text}, Interpolation Audio: {interpolation_audio}, Interpolation Amount: {interpolation_amount}"
     )
-    text_gen_path = text_to_audio(text)
+    text_gen_path = text_to_audio(text, length_secs=length_secs)
 
     if interpolation_mode == "Text" and interpolation_text:
-        interpolation_audio = text_to_audio(interpolation_text)
+        interpolation_audio = text_to_audio(interpolation_text, length_secs=length_secs)
 
     if interpolation_audio:
         interp_path = interpolate_audio(
@@ -45,11 +46,10 @@ def update_interpolation_inputs(mode: str):
 # Interface
 def build_interface():
     # determine model choices from "RAVE Models" folder (next to this script)
-    models_dir = os.path.join(os.path.dirname(__file__), "RAVE Models")
+    models_dir = os.path.join(os.path.dirname(""), "RAVE Models")
     model_choices = []
     try:
         if os.path.isdir(models_dir):
-            # list non-hidden files/directories and create full paths
             model_choices = sorted(
                 [
                     os.path.join(models_dir, f)
@@ -60,48 +60,63 @@ def build_interface():
     except Exception:
         model_choices = []
 
-    # fallback to defaults if folder missing or empty
     if not model_choices:
-        model_choices = ["gpt-4o-mini-tts", "gpt-4o-mini", "gpt-4o"]
+        model_choices = ["No Models Found"]
 
     with gr.Blocks() as demo:
-        gr.Markdown("# Audio Generation Demo")
+        gr.Markdown(
+            "# Text-Timbre Playground "
+            "\nGenerate audio from text and interpolate in the latent space of RAVE models (In `RAVE Models` folder). "
+            "\n\n- Enter a text prompt and select a length to generate audio from the Stable Audio Open 1.0 model. "
+            "\n- Optionally, provide a second text prompt or an audio file to interpolate with, and select a RAVE model for interpolation. "
+            "\n- Adjust the interpolation amount to blend between the original and target audio. "
+        )
         with gr.Row():
             with gr.Column():
                 txt = gr.Textbox(
                     label="Input text",
                     placeholder="Enter prompt for audio/music generation",
                 )
-                model = gr.Dropdown(
-                    choices=model_choices, value=model_choices[0], label="Model"
+                length_secs = gr.Slider(
+                    minimum=1,
+                    maximum=60,
+                    value=15,
+                    step=1,
+                    label="Length (seconds)",
                 )
                 text_gen_out = gr.Audio(label="Text generation output")
+                model = gr.Dropdown(
+                    choices=model_choices,
+                    value=model_choices[0],
+                    label="Interpolation model",
+                )
                 interp_out = gr.Audio(label="Interpolation output")
-                btn = gr.Button("Generate")
             with gr.Column():
-                interp_mode = gr.Dropdown(
-                    choices=["Text", "Audio"],
-                    value="Text",
-                    label="Interpolation source",
-                )
-                interp_txt = gr.Textbox(
-                    label="Interpolation text (optional)",
-                    placeholder="Optional text to interpolate from",
-                    visible=True,
-                )
-                interp_audio = gr.Audio(
-                    label="Interpolation audio (optional)",
-                    sources=["upload"],
-                    type="filepath",
-                    visible=False,
-                )
-                interp_amount = gr.Slider(
-                    minimum=0.0,
-                    maximum=1.0,
-                    value=0.5,
-                    step=0.05,
-                    label="Interpolation amount",
-                )
+                with gr.Group():
+                    interp_mode = gr.Dropdown(
+                        choices=["Text", "Audio"],
+                        value="Text",
+                        label="Interpolation source",
+                    )
+                    interp_txt = gr.Textbox(
+                        label="Interpolation text (optional)",
+                        placeholder="Optional text to interpolate from",
+                        visible=True,
+                    )
+                    interp_audio = gr.Audio(
+                        label="Interpolation audio (optional)",
+                        sources=["upload"],
+                        type="filepath",
+                        visible=False,
+                    )
+                    interp_amount = gr.Slider(
+                        minimum=0.0,
+                        maximum=1.0,
+                        value=0.5,
+                        step=0.05,
+                        label="Interpolation amount",
+                    )
+                btn = gr.Button("Generate")
 
         interp_mode.change(
             fn=update_interpolation_inputs,
@@ -110,7 +125,15 @@ def build_interface():
         )
         btn.click(
             fn=generate_audio,
-            inputs=[txt, model, interp_mode, interp_txt, interp_audio, interp_amount],
+            inputs=[
+                txt,
+                model,
+                length_secs,
+                interp_mode,
+                interp_txt,
+                interp_audio,
+                interp_amount,
+            ],
             outputs=[text_gen_out, interp_out],
         )
 
@@ -119,4 +142,4 @@ def build_interface():
 
 if __name__ == "__main__":
     demo = build_interface()
-    demo.launch()
+    demo.launch(debug=True)
