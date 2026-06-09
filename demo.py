@@ -74,7 +74,7 @@ def build_interface():
         with gr.Row():
             with gr.Column():
                 txt = gr.Textbox(
-                    label="Input text",
+                    label="Create a sample that sounds like...",
                     placeholder="Enter prompt for audio/music generation",
                 )
                 length_secs = gr.Slider(

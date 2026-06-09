@@ -75,18 +75,12 @@ def text_to_audio(
     # )
 
     output = (
-        output.to(torch.float32).clamp(-1, 1).cpu()[:, : (length_secs * sample_rate)]
-    )  # Trim to length_secs
-
-    torchaudio.save(
-        "output.wav",
-        output,
-        sample_rate=sample_rate,
-        encoding="PCM_F",
-        bits_per_sample=32,
+        output.to(torch.float32)
+        .div(torch.max(torch.abs(output)))
+        .clamp(-1, 1)
+        .cpu()[:, : (length_secs * sample_rate)]
     )
 
-    
-    # torchaudio.save(path, output, sample_rate)
+    torchaudio.save(path, output, sample_rate=sample_rate)
 
     return path
